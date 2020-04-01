@@ -31,7 +31,7 @@ class DukeMTMCreID(BaseImageDataset):
     dataset_dir = 'dukemtmc-reid'
 
     def __init__(self, root='/home/haoluo/data', verbose=True, **kwargs):
-        super(DukeMTMCreID, self).__init__()
+        super(DukeMTMCreID, self).__init__(**kwargs)
         self.dataset_dir = osp.join(root, self.dataset_dir)
         self.dataset_url = 'http://vision.cs.duke.edu/DukeMTMC/data/misc/DukeMTMC-reID.zip'
         self.train_dir = osp.join(self.dataset_dir, 'duke_mtmc_reid/bounding_box_train')
@@ -103,4 +103,4 @@ class DukeMTMCreID(BaseImageDataset):
             if relabel: pid = pid2label[pid]
             dataset.append((img_path, pid, camid))
 
-        return dataset
+        return self._offset_recalc(dataset, self._ds_type(dir_path))

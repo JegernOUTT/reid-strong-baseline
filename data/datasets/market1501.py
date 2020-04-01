@@ -26,7 +26,7 @@ class Market1501(BaseImageDataset):
     dataset_dir = 'market1501'
 
     def __init__(self, root='/home/haoluo/data', verbose=True, **kwargs):
-        super(Market1501, self).__init__()
+        super(Market1501, self).__init__(**kwargs)
         self.dataset_dir = osp.join(root, self.dataset_dir)
         self.train_dir = osp.join(self.dataset_dir, 'bounding_box_train')
         self.query_dir = osp.join(self.dataset_dir, 'query')
@@ -82,4 +82,4 @@ class Market1501(BaseImageDataset):
             if relabel: pid = pid2label[pid]
             dataset.append((img_path, pid, camid))
 
-        return dataset
+        return self._offset_recalc(dataset, self._ds_type(dir_path))

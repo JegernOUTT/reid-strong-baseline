@@ -5,6 +5,7 @@
 """
 
 import os.path as osp
+
 from PIL import Image
 from torch.utils.data import Dataset
 
@@ -28,9 +29,10 @@ def read_image(img_path):
 class ImageDataset(Dataset):
     """Image Person ReID Dataset"""
 
-    def __init__(self, dataset, transform=None):
+    def __init__(self, dataset, transform=None, debug=False):
         self.dataset = dataset
         self.transform = transform
+        self.debug = debug
 
     def __len__(self):
         return len(self.dataset)
@@ -41,5 +43,16 @@ class ImageDataset(Dataset):
 
         if self.transform is not None:
             img = self.transform(img)
+            if self.debug:
+                import numpy as np
+                import cv2
+
+                mean, std = self.transform.transforms[-2].mean, self.transform.transforms[-2].std
+                mean, std = np.array(mean, dtype=np.float32)[:, None, None], np.array(std, dtype=np.float32)[:, None,
+                                                                             None]
+                img = ((img.cpu().numpy() * std + mean) * 255).astype(np.uint8)
+                img = np.transpose(img, (1, 2, 0))[..., ::-1]
+                cv2.imshow(f'image_{pid}', img)
+                cv2.waitKey(0)
 
         return img, pid, camid, img_path

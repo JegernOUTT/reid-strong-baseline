@@ -29,10 +29,11 @@ class MSMT17(BaseImageDataset):
     dataset_dir = 'msmt17'
 
     def __init__(self,root='/home/haoluo/data', verbose=True, **kwargs):
-        super(MSMT17, self).__init__()
+        super(MSMT17, self).__init__(**kwargs)
         self.dataset_dir = osp.join(root, self.dataset_dir)
         self.train_dir = osp.join(self.dataset_dir, 'msmt_17/train')
-        self.test_dir = osp.join(self.dataset_dir, 'msmt_17/test')
+        self.query_dir = osp.join(self.dataset_dir, 'msmt_17/test')
+        self.gallery_dir = osp.join(self.dataset_dir, 'msmt_17/test')
         self.list_train_path = osp.join(self.dataset_dir, 'msmt_17/list_train.txt')
         self.list_val_path = osp.join(self.dataset_dir, 'msmt_17/list_val.txt')
         self.list_query_path = osp.join(self.dataset_dir, 'msmt_17/list_query.txt')
@@ -41,8 +42,8 @@ class MSMT17(BaseImageDataset):
         self._check_before_run()
         train = self._process_dir(self.train_dir, self.list_train_path)
         #val, num_val_pids, num_val_imgs = self._process_dir(self.train_dir, self.list_val_path)
-        query = self._process_dir(self.test_dir, self.list_query_path)
-        gallery = self._process_dir(self.test_dir, self.list_gallery_path)
+        query = self._process_dir(self.query_dir, self.list_query_path)
+        gallery = self._process_dir(self.gallery_dir, self.list_gallery_path)
         if verbose:
             print("=> MSMT17 loaded")
             self.print_dataset_statistics(train, query, gallery)
@@ -61,8 +62,8 @@ class MSMT17(BaseImageDataset):
             raise RuntimeError("'{}' is not available".format(self.dataset_dir))
         if not osp.exists(self.train_dir):
             raise RuntimeError("'{}' is not available".format(self.train_dir))
-        if not osp.exists(self.test_dir):
-            raise RuntimeError("'{}' is not available".format(self.test_dir))
+        if not osp.exists(self.query_dir):
+            raise RuntimeError("'{}' is not available".format(self.query_dir))
 
     def _process_dir(self, dir_path, list_path):
         with open(list_path, 'r') as txt:
@@ -80,4 +81,4 @@ class MSMT17(BaseImageDataset):
         # check if pid starts from 0 and increments with 1
         for idx, pid in enumerate(pid_container):
             assert idx == pid, "See code comment for explanation"
-        return dataset
+        return self._offset_recalc(dataset, self._ds_type(dir_path))

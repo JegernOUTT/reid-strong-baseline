@@ -48,6 +48,39 @@ class BaseImageDataset(BaseDataset):
     Base class of image reid dataset
     """
 
+    def __init__(self, offsets=None):
+        if offsets is None:
+            self.offsets = {
+                'num_train_pids': 0,
+                'num_train_cams': 0,
+                'num_query_pids': 0,
+                'num_query_cams': 0,
+                'num_gallery_pids': 0,
+                'num_gallery_cams': 0,
+            }
+        else:
+            self.offsets = offsets
+
+    def _ds_type(self, path) -> str:
+        datasets = {
+            self.train_dir: 'train',
+            self.query_dir: 'query',
+            self.gallery_dir: 'gallery'
+        }
+        return datasets[path]
+
+    def _offset_recalc(self, dataset, ds_type):
+        if ds_type == 'train':
+            dataset = [(path, pid + self.offsets['num_train_pids'], camid + self.offsets['num_train_cams'])
+                       for path, pid, camid in dataset]
+        elif ds_type == 'query':
+            dataset = [(path, pid + self.offsets['num_query_pids'], camid + self.offsets['num_query_cams'])
+                       for path, pid, camid in dataset]
+        elif ds_type == 'gallery':
+            dataset = [(path, pid + self.offsets['num_gallery_pids'], camid + self.offsets['num_gallery_cams'])
+                       for path, pid, camid in dataset]
+        return dataset
+
     def print_dataset_statistics(self, train, query, gallery):
         num_train_pids, num_train_imgs, num_train_cams = self.get_imagedata_info(train)
         num_query_pids, num_query_imgs, num_query_cams = self.get_imagedata_info(query)

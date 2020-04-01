@@ -3,6 +3,7 @@
 @author:  liaoxingyu
 @contact: sherlockliao01@gmail.com
 """
+from copy import deepcopy
 
 from torch.utils.data import DataLoader
 
@@ -21,8 +22,17 @@ def make_data_loader(cfg):
         dataset = init_dataset(cfg.DATASETS.NAMES, root=cfg.DATASETS.ROOT_DIR)
     else:
         datasets = []
+        offsets = dict(num_train_pids=0, num_train_cams=0, num_query_pids=0,
+                       num_query_cams=0, num_gallery_pids=0, num_gallery_cams=0)
         for name in cfg.DATASETS.NAMES:
-            datasets.append(init_dataset(name, root=cfg.DATASETS.ROOT_DIR))
+            dataset = init_dataset(name, root=cfg.DATASETS.ROOT_DIR, offsets=deepcopy(offsets))
+            offsets['num_train_pids'] += dataset.num_train_pids
+            offsets['num_train_cams'] += dataset.num_train_cams
+            offsets['num_query_pids'] += dataset.num_query_pids
+            offsets['num_query_cams'] += dataset.num_query_cams
+            offsets['num_gallery_pids'] += dataset.num_gallery_pids
+            offsets['num_gallery_cams'] += dataset.num_gallery_cams
+            datasets.append(dataset)
         dataset = MultiDataset(datasets)
 
     num_classes = dataset.num_train_pids
