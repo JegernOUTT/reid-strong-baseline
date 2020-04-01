@@ -68,7 +68,7 @@ _C.INPUT.PADDING = 10
 # -----------------------------------------------------------------------------
 _C.DATASETS = CN()
 # List of the dataset names for training, as present in paths_catalog.py
-_C.DATASETS.NAMES = ('market1501')
+_C.DATASETS.NAMES = ('market1501', 'dukemtmc', 'msmt17')
 # Root directory where datasets should be used (and downloaded if not found)
 _C.DATASETS.ROOT_DIR = ('./data')
 
@@ -159,3 +159,4 @@ _C.TEST.FEAT_NORM = 'yes'
 # ---------------------------------------------------------------------------- #
 # Path to checkpoint and saved log of trained model
 _C.OUTPUT_DIR = ""
+_C.WANDB = True

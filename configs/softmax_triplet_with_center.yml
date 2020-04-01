@@ -1,22 +1,21 @@
 MODEL:
+  NAME: 'resnet50'
   PRETRAIN_CHOICE: 'imagenet'
-  PRETRAIN_PATH: '/home/haoluo/.torch/models/resnet50-19c8e357.pth'
   METRIC_LOSS_TYPE: 'triplet_center'
   IF_LABELSMOOTH: 'on'
   IF_WITH_CENTER: 'yes'
-
-
-
+  DEVICE_ID: ('0,1')
+  PRETRAIN_PATH: '/home/svakhreev/.torch/models/resnet50-19c8e357.pth'
 
 INPUT:
-  SIZE_TRAIN: [256, 128]
-  SIZE_TEST: [256, 128]
+  SIZE_TRAIN: [128, 128]
+  SIZE_TEST: [128, 128]
   PROB: 0.5 # random horizontal flip
   RE_PROB: 0.5 # random erasing
   PADDING: 10
 
 DATASETS:
-  NAMES: ('market1501')
+  ROOT_DIR: "./datasets/"
 
 DATALOADER:
   SAMPLER: 'softmax_triplet'
@@ -42,7 +41,7 @@ SOLVER:
   BIAS_LR_FACTOR: 1
   WEIGHT_DECAY: 0.0005
   WEIGHT_DECAY_BIAS: 0.0005
-  IMS_PER_BATCH: 64
+  IMS_PER_BATCH: 256
 
   STEPS: [40, 70]
   GAMMA: 0.1
@@ -51,9 +50,9 @@ SOLVER:
   WARMUP_ITERS: 10
   WARMUP_METHOD: 'linear'
 
-  CHECKPOINT_PERIOD: 40
+  CHECKPOINT_PERIOD: 5
   LOG_PERIOD: 20
-  EVAL_PERIOD: 40
+  EVAL_PERIOD: 200
 
 TEST:
   IMS_PER_BATCH: 128
@@ -62,6 +61,5 @@ TEST:
   NECK_FEAT: 'after'
   FEAT_NORM: 'yes'
 
-OUTPUT_DIR: "/home/haoluo/log/gu/reid_baseline_review/Opensource_test/market1501/Experiment-all-tricks-tri_center-256x128-bs16x4-warmup10-erase0_5-labelsmooth_on-laststride1-bnneck_on-triplet_centerloss0_0005"
-
-
+OUTPUT_DIR: "./logs/"
+WANDB: True

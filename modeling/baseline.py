@@ -129,8 +129,11 @@ class Baseline(nn.Module):
             self.base = resnet50_ibn_a(last_stride)
 
         if pretrain_choice == 'imagenet':
-            self.base.load_param(model_path)
-            print('Loading pretrained ImageNet model......')
+            if model_path != '':
+                self.base.load_param(model_path)
+                print('Loading pretrained ImageNet model......')
+            else:
+                print('No weights presented')
 
         self.gap = nn.AdaptiveAvgPool2d(1)
         # self.gap = nn.AdaptiveMaxPool2d(1)

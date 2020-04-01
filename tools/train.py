@@ -8,6 +8,7 @@ import argparse
 import os
 import sys
 import torch
+import wandb
 
 from torch.backends import cudnn
 
@@ -28,6 +29,8 @@ def train(cfg):
 
     # prepare model
     model = build_model(cfg, num_classes)
+    if cfg.WANDB:
+        wandb.watch(model)
 
     if cfg.MODEL.IF_WITH_CENTER == 'no':
         print('Train without center loss, the loss type is', cfg.MODEL.METRIC_LOSS_TYPE)
@@ -140,6 +143,8 @@ def main():
     logger = setup_logger("reid_baseline", output_dir, 0)
     logger.info("Using {} GPUS".format(num_gpus))
     logger.info(args)
+    if cfg.WANDB:
+        wandb.init(project='abandonment_reid', dir=cfg.OUTPUT_DIR)
 
     if args.config_file != "":
         logger.info("Loaded configuration file {}".format(args.config_file))
