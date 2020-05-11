@@ -7,6 +7,7 @@
 import torch
 from torch import nn
 
+from .backbones.resnest import ResNeSt
 from .backbones.resnet import ResNet, BasicBlock, Bottleneck
 from .backbones.senet import SENet, SEResNetBottleneck, SEBottleneck, SEResNeXtBottleneck
 from .backbones.resnet_ibn_a import resnet50_ibn_a
@@ -127,9 +128,11 @@ class Baseline(nn.Module):
                               last_stride=last_stride)
         elif model_name == 'resnet50_ibn_a':
             self.base = resnet50_ibn_a(last_stride)
-
+        elif model_name == 'resnest50':
+            self.base = ResNeSt('resnest50', pretrained=True, include_top=False)
         if pretrain_choice == 'imagenet':
             if model_path != '':
+
                 self.base.load_param(model_path)
                 print('Loading pretrained ImageNet model......')
             else:
@@ -156,8 +159,8 @@ class Baseline(nn.Module):
     def forward(self, x):
 
         global_feat = self.gap(self.base(x))  # (b, 2048, 1, 1)
-        # global_feat = global_feat.flatten(1, 2)  # flatten to (bs, 2048)
-        global_feat = global_feat.view(global_feat.shape[0], -1)  # flatten to (bs, 2048)
+        global_feat = global_feat.flatten(1, 2)  # flatten to (bs, 2048)
+        # global_feat = global_feat.view(global_feat.shape[0], -1)  # flatten to (bs, 2048)
 
         if self.neck == 'no':
             feat = global_feat

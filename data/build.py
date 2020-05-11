@@ -40,14 +40,14 @@ def make_data_loader(cfg):
     if cfg.DATALOADER.SAMPLER == 'softmax':
         train_loader = DataLoader(
             train_set, batch_size=cfg.SOLVER.IMS_PER_BATCH, shuffle=True, num_workers=num_workers,
-            collate_fn=train_collate_fn
+            collate_fn=train_collate_fn, pin_memory=True
         )
     else:
         train_loader = DataLoader(
             train_set, batch_size=cfg.SOLVER.IMS_PER_BATCH,
             sampler=RandomIdentitySampler(dataset.train, cfg.SOLVER.IMS_PER_BATCH, cfg.DATALOADER.NUM_INSTANCE),
             # sampler=RandomIdentitySampler_alignedreid(dataset.train, cfg.DATALOADER.NUM_INSTANCE),      # new add by gu
-            num_workers=num_workers, collate_fn=train_collate_fn
+            num_workers=num_workers, collate_fn=train_collate_fn, pin_memory=True
         )
 
     val_set = ImageDataset(datasets[0].query + datasets[0].gallery, val_transforms)

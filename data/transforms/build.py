@@ -14,16 +14,16 @@ from .transforms import RandomErasing
 def build_aug(p=.8):
     import cv2
     from albumentations import (
-        HorizontalFlip, IAAPerspective, ShiftScaleRotate, CLAHE, RandomRotate90,
-        Transpose, ShiftScaleRotate, Blur, OpticalDistortion, GridDistortion, HueSaturationValue,
-        IAAAdditiveGaussianNoise, GaussNoise, MotionBlur, MedianBlur, RandomBrightnessContrast, IAAPiecewiseAffine,
-        IAASharpen, IAAEmboss, Flip, OneOf, Compose
+        CLAHE, Transpose, ShiftScaleRotate, Blur, OpticalDistortion, GridDistortion, IAAAdditiveGaussianNoise,
+        GaussNoise, MotionBlur, MedianBlur, RandomBrightnessContrast, IAAPiecewiseAffine,
+        IAASharpen, Flip, OneOf, Compose, RGBShift, RandomGamma, ElasticTransform, ImageCompression
     )
 
     composer = Compose([
         Flip(),
         Transpose(),
         OneOf([
+            ImageCompression(quality_lower=40),
             IAAAdditiveGaussianNoise(),
             GaussNoise(),
         ], p=0.2),
@@ -32,16 +32,22 @@ def build_aug(p=.8):
             MedianBlur(blur_limit=3, p=0.1),
             Blur(blur_limit=3, p=0.1),
         ], p=0.2),
-        ShiftScaleRotate(shift_limit=0.0625, scale_limit=0.3, rotate_limit=45, p=0.2,
-                         border_mode=cv2.BORDER_CONSTANT, value=(128, 128, 128)),
+        ShiftScaleRotate(shift_limit=0.3, scale_limit=0.5, p=0.2, border_mode=cv2.BORDER_CONSTANT,
+                         value=(128, 128, 128)),
         OneOf([
-            OpticalDistortion(p=0.3),
-            GridDistortion(p=.1),
+            OpticalDistortion(shift_limit=0, p=0.3, border_mode=cv2.BORDER_CONSTANT, value=(128, 128, 128)),
+            GridDistortion(p=.1, border_mode=cv2.BORDER_CONSTANT, value=(128, 128, 128)),
             IAAPiecewiseAffine(p=0.3),
+            ElasticTransform(p=0.3, border_mode=cv2.BORDER_CONSTANT, value=(128, 128, 128)),
         ], p=0.2),
         OneOf([
             CLAHE(clip_limit=2),
             IAASharpen(),
+            RandomBrightnessContrast(),
+        ], p=0.3),
+        OneOf([
+            RGBShift(r_shift_limit=(40, 60), g_shift_limit=(40, 60), b_shift_limit=0),
+            RandomGamma(gamma_limit=(60, 200)),
             RandomBrightnessContrast(),
         ], p=0.3),
     ], p=p)

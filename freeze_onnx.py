@@ -21,7 +21,7 @@ if __name__ == '__main__':
     model = torch.load(checkpoint_path)
 
     with torch.no_grad():
-        export(model, torch.zeros((32, 3, 128, 128), dtype=torch.float32).cuda(),
-               './out.onnx',
+        export(model, torch.zeros((32, 3, 192, 192), dtype=torch.float32).cuda(),
+               './resnest50_model.onnx',
                opset_version=9,
                do_constant_folding=True)

@@ -9,6 +9,7 @@ import os
 import sys
 import torch
 import wandb
+from catalyst.contrib.nn.schedulers import OneCycleLRWithWarmup
 
 from torch.backends import cudnn
 
@@ -50,6 +51,7 @@ def train(cfg):
             optimizer.load_state_dict(torch.load(path_to_optimizer))
             scheduler = WarmupMultiStepLR(optimizer, cfg.SOLVER.STEPS, cfg.SOLVER.GAMMA, cfg.SOLVER.WARMUP_FACTOR,
                                           cfg.SOLVER.WARMUP_ITERS, cfg.SOLVER.WARMUP_METHOD, start_epoch)
+
         elif cfg.MODEL.PRETRAIN_CHOICE == 'imagenet':
             start_epoch = 0
             scheduler = WarmupMultiStepLR(optimizer, cfg.SOLVER.STEPS, cfg.SOLVER.GAMMA, cfg.SOLVER.WARMUP_FACTOR,
@@ -93,12 +95,18 @@ def train(cfg):
             optimizer.load_state_dict(torch.load(path_to_optimizer))
             center_criterion.load_state_dict(torch.load(path_to_center_param))
             optimizer_center.load_state_dict(torch.load(path_to_optimizer_center))
-            scheduler = WarmupMultiStepLR(optimizer, cfg.SOLVER.STEPS, cfg.SOLVER.GAMMA, cfg.SOLVER.WARMUP_FACTOR,
-                                          cfg.SOLVER.WARMUP_ITERS, cfg.SOLVER.WARMUP_METHOD, start_epoch)
+            # scheduler = WarmupMultiStepLR(optimizer, cfg.SOLVER.STEPS, cfg.SOLVER.GAMMA, cfg.SOLVER.WARMUP_FACTOR,
+            #                               cfg.SOLVER.WARMUP_ITERS, cfg.SOLVER.WARMUP_METHOD, start_epoch)
+            scheduler = OneCycleLRWithWarmup(optimizer, lr_range=(0.005, 1e-5),
+                                             num_steps=len(train_loader) * cfg.SOLVER.MAX_EPOCHS,
+                                             warmup_steps=50, init_lr=1e-4)
         elif cfg.MODEL.PRETRAIN_CHOICE == 'imagenet':
             start_epoch = 0
             scheduler = WarmupMultiStepLR(optimizer, cfg.SOLVER.STEPS, cfg.SOLVER.GAMMA, cfg.SOLVER.WARMUP_FACTOR,
                                           cfg.SOLVER.WARMUP_ITERS, cfg.SOLVER.WARMUP_METHOD)
+            # scheduler = OneCycleLRWithWarmup(optimizer, lr_range=(0.005, 1e-5),
+            #                                  num_steps=len(train_loader) * cfg.SOLVER.MAX_EPOCHS,
+            #                                  warmup_steps=50, init_lr=1e-4)
         else:
             print('Only support pretrain_choice for imagenet and self, but got {}'.format(cfg.MODEL.PRETRAIN_CHOICE))
 
